@@ -14,6 +14,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background-color: #323232;
 }
 
 .f20 {
@@ -101,6 +102,39 @@
     cursor: pointer;
     z-index: 5;
     border: none;
+}
+
+.timeline-hover-thumb {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background-color: var(--gFF);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 5;
+    border: none;
+    pointer-events: none;
+}
+
+.timeline-hover-time {
+    position: absolute;
+    top: calc(50% - 25px);
+    left: 0;
+    transform: translateY(-50%);
+    background-color: var(--gFF);
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 5;
+    border: none;
+    padding: 5px 5px;
+    pointer-events: none;
+}
+
+.timeline-hover-time.f20 {
+    color: var(--g10);
 }
 
 .player-controls {

@@ -21,10 +21,13 @@ const Player = (props) => {
     const videoSliderRef = useRef(null)
     const videoActiveSliderRef = useRef(null)
     const videoTimeRef = useRef(null)
+    const timelineHoverThumbRef = useRef(null)
+    const timelineHoverTimeRef = useRef(null)
 
     const [isPlaying, setIsPlaying] = useState(false)
     const [volumeShown, setVolumeShown] = useState(false)
     const [isHovered, setIsHovered] = useState(false)
+    const [isTimelineHovered, setIsTimelineHovered] = useState(false)
 
     const twoDigitFormatter = new Intl.NumberFormat(undefined, {
         minimumIntegerDigits: 2
@@ -36,10 +39,13 @@ const Player = (props) => {
         controlsContainerRef.current.style.display = `${isHovered ? 'flex' : 'none'}`
         volumeSlider.current.style.display = `${volumeShown ? 'flex' : 'none'}`
         volumeActiveSlider.current.style.display = `${volumeShown ? 'flex' : 'none'}`
+        timelineHoverThumbRef.current.style.display = `${isHovered ? 'flex' : 'none'}`
+        timelineHoverTimeRef.current.style.display = `${isTimelineHovered ? 'flex' : 'none'}`
 
         volumeActiveSlider.current.style.width = '80px'
         videoActiveSliderRef.current.style.width = '0'
         videoTimelineRef.current.max = videoRef.current.duration
+        videoTimeRef.current.innerText = '0:00 / 0:00'
     }, [])
 
     function playPause() {
@@ -108,13 +114,39 @@ const Player = (props) => {
         }
     }
 
+    function showHoverTime() {
+        setIsTimelineHovered(true)
+        timelineHoverTimeRef.current.style.display = 'flex'
+        timelineHoverThumbRef.current.style.display = 'flex'
+    }
+
+    function hideHoverTime() {
+        setIsTimelineHovered(false)
+        timelineHoverTimeRef.current.style.display = 'none'
+        timelineHoverThumbRef.current.style.display = 'none'
+    }
+
+    function setHoveredThumb(e) {
+        const rect = videoTimelineRef.current.getBoundingClientRect()
+        const leftPos = Math.min(Math.max(0, e.clientX - rect.x), rect.width)
+        const percent = leftPos / rect.width
+    
+        timelineHoverThumbRef.current.style.left = `calc(${leftPos}px - 4px)`
+        timelineHoverTimeRef.current.style.left = `calc(${leftPos}px - ${timelineHoverTimeRef.current.getBoundingClientRect().width / 2}px)`
+        timelineHoverTimeRef.current.innerText = `${formatDuration(videoRef.current.duration * percent)}`
+        videoTimeRef.current.innerText = videoRef.current.duration > 3600 ? `0:00:00 / ${formatDuration(videoRef.current.duration)}` : `${formatDuration(0)} / ${formatDuration(videoRef.current.duration)}`
+    }
+
+
     return (
-        <div className="player-container" onMouseEnter={showControls} onMouseLeave={hideControls}>
+        <div className="player-container" onMouseMove={setHoveredThumb} onMouseEnter={showControls} onMouseLeave={hideControls}>
             <img className="video-indicator" onClick={playPause} ref={videoIndicatorRef} src={ isPlaying ? pauseRoundIcon : playRoundIcon } alt=""></img>
             <div className="player-controls-container" ref={controlsContainerRef}>
-                <div className="video-timeline-container">
+                <div className="video-timeline-container" onMouseEnter={showHoverTime} onMouseLeave={hideHoverTime}>
                     <div className="slider" ref={videoSliderRef}></div>
                     <div className="active-slider" ref={videoActiveSliderRef}></div>
+                    <div className="timeline-hover-thumb" ref={timelineHoverThumbRef}></div>
+                    <p className="f20 timeline-hover-time" ref={timelineHoverTimeRef}>0:00</p>
                     <input type="range" min="0" step="any" defaultValue={0} onChange={setTimeline} className="video-timeline" ref={videoTimelineRef} />
                 </div>
                 <div className="player-controls">
@@ -124,11 +156,11 @@ const Player = (props) => {
                             <img className="volume-btn" src={volumeIcon} alt=""/>
                             <div className="slider" ref={volumeSlider}></div>
                             <div className="active-slider" ref={volumeActiveSlider}></div>
-                            <input type="range" min="0" max="10" step="1" className="volume-range" ref={volumeRangeRef} onChange={setVolume} />
+                            <input type="range" min="0" max="10" step="1" defaultValue={10} className="volume-range" ref={volumeRangeRef} onChange={setVolume} />
                         </div>
                     </div>
                     <div className="pc-right">
-                        <p className="f20 video-time" ref={videoTimeRef}>TIME</p>
+                        <p className="f20 video-time" ref={videoTimeRef}></p>
                     </div>
                 </div>
             </div>
