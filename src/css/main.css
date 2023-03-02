@@ -29,6 +29,9 @@
     width: 100% !important;
     min-width: 400px;
     max-width: 800px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .video-indicator {
@@ -152,6 +155,13 @@
     gap: 20px;
 }
 
+.pc-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+}
+
 .play-btn {
     width: 20px;
     height: 20px;
@@ -230,4 +240,15 @@
     cursor: pointer;
     z-index: 5;
     border: none;
+}
+
+.maxMinBtn {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    transition: all .1s ease-in-out;
+}
+
+.maxMinBtn:hover {
+    transform: scale(.9);
 }

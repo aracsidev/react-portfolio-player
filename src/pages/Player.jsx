@@ -5,6 +5,8 @@ import pauseIcon from '../assets/icons/pause.svg'
 import volumeIcon from '../assets/icons/volume.svg'
 import playRoundIcon from '../assets/icons/play_round.svg'
 import pauseRoundIcon from '../assets/icons/pause_round.svg'
+import maximizeIcon from '../assets/icons/maximize.svg'
+import minimizeIcon from '../assets/icons/minimize.svg'
 
 const Player = (props) => {
 
@@ -23,11 +25,14 @@ const Player = (props) => {
     const videoTimeRef = useRef(null)
     const timelineHoverThumbRef = useRef(null)
     const timelineHoverTimeRef = useRef(null)
+    const minMaxBtnRef = useRef(null)
+    const playerContainerRef = useRef(null)
 
     const [isPlaying, setIsPlaying] = useState(false)
     const [volumeShown, setVolumeShown] = useState(false)
     const [isHovered, setIsHovered] = useState(false)
     const [isTimelineHovered, setIsTimelineHovered] = useState(false)
+    const [isFullscreen, setIsFullscreen] = useState(false)
 
     const twoDigitFormatter = new Intl.NumberFormat(undefined, {
         minimumIntegerDigits: 2
@@ -85,8 +90,8 @@ const Player = (props) => {
     }
 
     function setVolume() {
-        videoRef.current.volume = volumeRangeRef.current.value / 10
-        volumeActiveSlider.current.style.width = `${volumeRangeRef.current.value === 0 ? 0 : 80 * (volumeRangeRef.current.value / 10)}px`
+        videoRef.current.volume = volumeRangeRef.current.value / 100
+        volumeActiveSlider.current.style.width = `${volumeRangeRef.current.value === 0 ? 0 : 80 * (volumeRangeRef.current.value / 100)}px`
     }
 
     function timeUpdate() {
@@ -134,12 +139,23 @@ const Player = (props) => {
         timelineHoverThumbRef.current.style.left = `calc(${leftPos}px - 4px)`
         timelineHoverTimeRef.current.style.left = `calc(${leftPos}px - ${timelineHoverTimeRef.current.getBoundingClientRect().width / 2}px)`
         timelineHoverTimeRef.current.innerText = `${formatDuration(videoRef.current.duration * percent)}`
-        videoTimeRef.current.innerText = videoRef.current.duration > 3600 ? `0:00:00 / ${formatDuration(videoRef.current.duration)}` : `${formatDuration(0)} / ${formatDuration(videoRef.current.duration)}`
+        // videoTimeRef.current.innerText = videoRef.current.duration > 3600 ? `0:00:00 / ${formatDuration(videoRef.current.duration)}` : `${formatDuration(0)} / ${formatDuration(videoRef.current.duration)}`
     }
 
+    function setFullscreen() {
+        if (isFullscreen && document.fullscreenElement == null) {
+            setIsFullscreen(false)
+            minMaxBtnRef.current.src = minimizeIcon
+            playerContainerRef.current.requestFullscreen()
+        } else {
+            setIsFullscreen(true)
+            minMaxBtnRef.current.src = maximizeIcon
+            document.exitFullscreen()
+        }
+    }
 
     return (
-        <div className="player-container" onMouseMove={setHoveredThumb} onMouseEnter={showControls} onMouseLeave={hideControls}>
+        <div className="player-container" onMouseMove={setHoveredThumb} onMouseEnter={showControls} onMouseLeave={hideControls} ref={playerContainerRef}>
             <img className="video-indicator" onClick={playPause} ref={videoIndicatorRef} src={ isPlaying ? pauseRoundIcon : playRoundIcon } alt=""></img>
             <div className="player-controls-container" ref={controlsContainerRef}>
                 <div className="video-timeline-container" onMouseEnter={showHoverTime} onMouseLeave={hideHoverTime}>
@@ -156,11 +172,12 @@ const Player = (props) => {
                             <img className="volume-btn" src={volumeIcon} alt=""/>
                             <div className="slider" ref={volumeSlider}></div>
                             <div className="active-slider" ref={volumeActiveSlider}></div>
-                            <input type="range" min="0" max="10" step="1" defaultValue={10} className="volume-range" ref={volumeRangeRef} onChange={setVolume} />
+                            <input type="range" min="0" max="100" step="1" defaultValue={100} className="volume-range" ref={volumeRangeRef} onChange={setVolume} />
                         </div>
                     </div>
                     <div className="pc-right">
                         <p className="f20 video-time" ref={videoTimeRef}></p>
+                        <img className="maxMinBtn" src={maximizeIcon} onClick={setFullscreen} ref={minMaxBtnRef} alt="" />
                     </div>
                 </div>
             </div>
