@@ -27,6 +27,7 @@ const Player = (props) => {
     const timelineHoverTimeRef = useRef(null)
     const minMaxBtnRef = useRef(null)
     const playerContainerRef = useRef(null)
+    const volumePercentRef = useRef(null)
 
     const [isPlaying, setIsPlaying] = useState(false)
     const [volumeShown, setVolumeShown] = useState(false)
@@ -51,6 +52,7 @@ const Player = (props) => {
         videoActiveSliderRef.current.style.width = '0'
         videoTimelineRef.current.max = videoRef.current.duration
         videoTimeRef.current.innerText = '0:00 / 0:00'
+        volumePercentRef.current.innerText = '100%'
     }, [])
 
     function playPause() {
@@ -79,19 +81,20 @@ const Player = (props) => {
 
     function showControls() {
         setIsHovered(true)
-        videoIndicatorRef.current.style.display = 'flex'
+        // videoIndicatorRef.current.style.display = 'flex'
         controlsContainerRef.current.style.display = 'flex'
     }
 
     function hideControls() {
         setIsHovered(false)
-        videoIndicatorRef.current.style.display = 'none'
+        // videoIndicatorRef.current.style.display = 'none'
         controlsContainerRef.current.style.display = 'none'
     }
 
     function setVolume() {
         videoRef.current.volume = volumeRangeRef.current.value / 100
         volumeActiveSlider.current.style.width = `${volumeRangeRef.current.value === 0 ? 0 : 80 * (volumeRangeRef.current.value / 100)}px`
+        volumePercentRef.current.innerText = `${Math.round(videoRef.current.volume * 100)}%`
     }
 
     function timeUpdate() {
@@ -143,19 +146,19 @@ const Player = (props) => {
     }
 
     function setFullscreen() {
-        if (isFullscreen && document.fullscreenElement == null) {
-            setIsFullscreen(false)
+        if (!isFullscreen && document.fullscreenElement == null) {
+            setIsFullscreen(true)
             minMaxBtnRef.current.src = minimizeIcon
             playerContainerRef.current.requestFullscreen()
         } else {
-            setIsFullscreen(true)
+            setIsFullscreen(false)
             minMaxBtnRef.current.src = maximizeIcon
             document.exitFullscreen()
         }
     }
 
     return (
-        <div className="player-container" onMouseMove={setHoveredThumb} onMouseEnter={showControls} onMouseLeave={hideControls} ref={playerContainerRef}>
+        <div className="player-container" onMouseMove={setHoveredThumb} onMouseEnter={showControls} onMouseLeave={hideControls} ref={playerContainerRef} onDoubleClick={setFullscreen}>
             <img className="video-indicator" onClick={playPause} ref={videoIndicatorRef} src={ isPlaying ? pauseRoundIcon : playRoundIcon } alt=""></img>
             <div className="player-controls-container" ref={controlsContainerRef}>
                 <div className="video-timeline-container" onMouseEnter={showHoverTime} onMouseLeave={hideHoverTime}>
@@ -173,6 +176,7 @@ const Player = (props) => {
                             <div className="slider" ref={volumeSlider}></div>
                             <div className="active-slider" ref={volumeActiveSlider}></div>
                             <input type="range" min="0" max="100" step="1" defaultValue={100} className="volume-range" ref={volumeRangeRef} onChange={setVolume} />
+                            <p className="f20 volume-percent" ref={volumePercentRef}>100%</p>
                         </div>
                     </div>
                     <div className="pc-right">
